@@ -1,5 +1,7 @@
 # crouter
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/Starshine113/crouter.svg)](https://pkg.go.dev/github.com/Starshine113/crouter)
+
 A simple command handler for [discordgo](https://github.com/bwmarrin/discordgo).
 
 ## Usage
