@@ -2,6 +2,7 @@ package crouter
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -11,6 +12,13 @@ import (
 // You shouldn't have to use this most of the time, as the (*Router).MessageCreate function calls
 // this, but if you want more control over what happens, you probably want to call this yourself.
 func (r *Router) Execute(ctx *Ctx) (err error) {
+	// catch panics in commands
+	defer func() {
+		if r := recover(); r != nil {
+			ctx.Embed("Panic", fmt.Sprintf("```%v```", r), 0xbf392f)
+			log.Printf("Caught panic in %v (channel ID %v, guild %v): %v", ctx.Command, ctx.Message.ChannelID, ctx.Message.GuildID, r)
+		}
+	}()
 	help := r.GetCommand("commands")
 	if ctx.Match(append([]string{help.Name}, help.Aliases...)...) {
 		err = r.Help(ctx)

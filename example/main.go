@@ -53,6 +53,17 @@ func main() {
 		},
 	})
 
+	// a sample panicking command
+	r.AddCommand(&crouter.Command{
+		Name: "Panic",
+
+		Summary: "Make the bot panic",
+
+		Command: func(ctx *crouter.Ctx) (err error) {
+			panic("panicking!")
+		},
+	})
+
 	// add intents
 	dg.Identify.Intents = discordgo.MakeIntent(crouter.RequiredIntents)
 
