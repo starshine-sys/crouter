@@ -1,3 +1,4 @@
+// Package crouter provides a simple command handler for discordgo
 package crouter
 
 import (
