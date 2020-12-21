@@ -49,7 +49,7 @@ func (r *Router) Execute(ctx *Ctx) (err error) {
 			}
 			ctx.Cmd = cmd
 			if cmd.Blacklistable && ctx.Message.GuildID != "" {
-				if !r.blacklist(ctx) {
+				if r.blacklist(ctx) {
 					return nil
 				}
 			}
