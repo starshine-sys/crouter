@@ -10,6 +10,11 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// Version returns the current crouter version
+func Version() string {
+	return "0.5.1"
+}
+
 // RequiredIntents are the intents required for the router
 const RequiredIntents = discordgo.IntentsGuildMessages | discordgo.IntentsGuildMessageReactions | discordgo.IntentsDirectMessages | discordgo.IntentsDirectMessageReactions | discordgo.IntentsGuilds
 
