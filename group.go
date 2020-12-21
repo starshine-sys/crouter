@@ -106,7 +106,7 @@ func (g *Group) execute(ctx *Ctx) (err error) {
 			}
 
 			ctx.Cmd = cmd
-			if cmd.Blacklistable {
+			if cmd.Blacklistable && ctx.Message.GuildID != "" {
 				if !g.Router.blacklist(ctx) {
 					return nil
 				}
