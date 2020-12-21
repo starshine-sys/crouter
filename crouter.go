@@ -26,6 +26,8 @@ type Router struct {
 	Cooldowns *ttlcache.Cache
 	Handlers  *ttlcache.Cache
 
+	blacklist func(*Ctx) bool
+
 	prefixUsersSet bool
 }
 
@@ -34,6 +36,9 @@ type Command struct {
 	Name    string
 	Aliases []string
 	Regex   *regexp.Regexp
+
+	// Blacklistable commands use the router's blacklist function to check if they can be run
+	Blacklistable bool
 
 	// Summary is used in the command list
 	Summary string
@@ -46,9 +51,12 @@ type Command struct {
 	Command func(*Ctx) error
 
 	Permissions int
-	GuildOnly   bool
-	OwnerOnly   bool
-	Cooldown    time.Duration
+
+	CustomPermissions []func(*Ctx) (string, bool)
+
+	GuildOnly bool
+	OwnerOnly bool
+	Cooldown  time.Duration
 
 	Router *Router
 }
@@ -81,6 +89,11 @@ func NewRouter(s *discordgo.Session, owners, prefixes []string) *Router {
 	})
 
 	return router
+}
+
+// Blacklist sets the router's blacklist function
+func (r *Router) Blacklist(f func(*Ctx) bool) {
+	r.blacklist = f
 }
 
 // dummy is used when a command isn't handled with the normal process

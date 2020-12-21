@@ -48,8 +48,19 @@ func (r *Router) Execute(ctx *Ctx) (err error) {
 				}
 			}
 			ctx.Cmd = cmd
+			if cmd.Blacklistable {
+				if !r.blacklist(ctx) {
+					return nil
+				}
+			}
 			if perms := ctx.Check(); perms != nil {
 				return ctx.CommandError(perms)
+			}
+			for _, c := range cmd.CustomPermissions {
+				if p, b := c(ctx); !b {
+					_, err = ctx.Sendf("You are not allowed to use this command: you are missing the `%v` permission.", p)
+					return err
+				}
 			}
 			if cmd.Cooldown != time.Duration(0) {
 				if _, e := r.Cooldowns.Get(fmt.Sprintf("%v-%v-%v", ctx.Channel.ID, ctx.Author.ID, cmd.Name)); e == nil {

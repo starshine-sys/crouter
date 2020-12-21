@@ -65,7 +65,7 @@ func main() {
 		},
 	})
 
-	// a sample panicking command
+	// a sample command with arguments
 	r.AddCommand(&crouter.Command{
 		Name: "Arguments",
 
@@ -73,6 +73,26 @@ func main() {
 
 		Command: func(ctx *crouter.Ctx) (err error) {
 			_, err = ctx.Send(fmt.Sprintf("arg length => %v\narguments: %v\nraw arguments: %v", len(ctx.Args), ctx.Args, ctx.RawArgs))
+			return err
+		},
+	})
+
+	r.AddCommand(&crouter.Command{
+		Name: "Permissions",
+
+		Summary: "This command needs extra permissions",
+
+		CustomPermissions: []func(*crouter.Ctx) (string, bool){
+			func(ctx *crouter.Ctx) (string, bool) {
+				if ctx.Author.ID == owner {
+					return "", true
+				}
+				return "Bot Admin", false
+			},
+		},
+
+		Command: func(ctx *crouter.Ctx) (err error) {
+			_, err = ctx.Send("Congrats, you're a bot admin!")
 			return err
 		},
 	})
