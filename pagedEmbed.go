@@ -7,9 +7,9 @@ import (
 // PagedEmbed sends a slice of embeds, and attaches reaction handlers to flip through them.
 func (ctx *Ctx) PagedEmbed(embeds []*discordgo.MessageEmbed) (msg *discordgo.Message, err error) {
 	if len(embeds) == 1 {
-		return ctx.Send(embeds[0])
+		return ctx.SendAddXHandler(embeds[0])
 	}
-	msg, err = ctx.Send(embeds[0])
+	msg, err = ctx.SendAddXHandler(embeds[0])
 	if err != nil {
 		return
 	}
