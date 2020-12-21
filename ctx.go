@@ -58,7 +58,9 @@ func (r *Router) Context(m *discordgo.MessageCreate) (ctx *Ctx, err error) {
 		args = message[1:]
 	}
 
-	ctx = &Ctx{Command: command, Args: args, Message: m, Author: m.Author, RawArgs: TrimPrefixesSpace(m.Content, append(r.Prefixes, command)...), Router: r, Session: r.Session}
+	raw := TrimPrefixesSpace(messageContent, command)
+
+	ctx = &Ctx{Command: command, Args: args, Message: m, Author: m.Author, RawArgs: raw, Router: r, Session: r.Session}
 
 	channel, err := r.Session.Channel(m.ChannelID)
 	if err != nil {

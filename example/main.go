@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -61,6 +62,18 @@ func main() {
 
 		Command: func(ctx *crouter.Ctx) (err error) {
 			panic("panicking!")
+		},
+	})
+
+	// a sample panicking command
+	r.AddCommand(&crouter.Command{
+		Name: "Arguments",
+
+		Summary: "Play around with arguments",
+
+		Command: func(ctx *crouter.Ctx) (err error) {
+			_, err = ctx.Send(fmt.Sprintf("arg length => %v\narguments: %v\nraw arguments: %v", len(ctx.Args), ctx.Args, ctx.RawArgs))
+			return err
 		},
 	})
 
