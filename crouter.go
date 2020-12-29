@@ -31,6 +31,9 @@ type Router struct {
 	Cooldowns *ttlcache.Cache
 	Handlers  *ttlcache.Cache
 
+	// PostFunc is called when a command completes
+	PostFunc func(*Ctx)
+
 	blacklist func(*Ctx) bool
 
 	prefixUsersSet bool

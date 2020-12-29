@@ -97,6 +97,9 @@ func main() {
 		},
 	})
 
+	// this function is called after every succesful command execution
+	r.PostFunc = postFunc
+
 	// add intents
 	dg.Identify.Intents = discordgo.MakeIntent(crouter.RequiredIntents)
 

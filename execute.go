@@ -72,7 +72,14 @@ func (r *Router) Execute(ctx *Ctx) (err error) {
 					return err
 				}
 			}
-			return cmd.Command(ctx)
+			err = cmd.Command(ctx)
+			if err != nil {
+				return err
+			}
+			if r.PostFunc != nil {
+				r.PostFunc(ctx)
+			}
+			return nil
 		}
 	}
 

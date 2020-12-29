@@ -130,7 +130,14 @@ func (g *Group) execute(ctx *Ctx) (err error) {
 					return err
 				}
 			}
-			return cmd.Command(ctx)
+			err = cmd.Command(ctx)
+			if err != nil {
+				return err
+			}
+			if g.Router.PostFunc != nil {
+				g.Router.PostFunc(ctx)
+			}
+			return nil
 		}
 	}
 	ctx.Cmd = g.Command
@@ -139,5 +146,12 @@ func (g *Group) execute(ctx *Ctx) (err error) {
 	if perms := ctx.Check(); perms != nil {
 		return ctx.CommandError(perms)
 	}
-	return g.Command.Command(ctx)
+	err = g.Command.Command(ctx)
+	if err != nil {
+		return err
+	}
+	if g.Router.PostFunc != nil {
+		g.Router.PostFunc(ctx)
+	}
+	return nil
 }

@@ -62,9 +62,14 @@ func (r *Router) Context(m *discordgo.MessageCreate) (ctx *Ctx, err error) {
 
 	ctx = &Ctx{Command: command, Args: args, Message: m, Author: m.Author, RawArgs: raw, Router: r, Session: r.Session}
 
-	channel, err := r.Session.Channel(m.ChannelID)
-	if err != nil {
+	channel, err := r.Session.State.Channel(m.ChannelID)
+	if err != nil && err != discordgo.ErrStateNotFound {
 		return ctx, err
+	} else if err == discordgo.ErrStateNotFound {
+		channel, err = r.Session.Channel(m.ChannelID)
+		if err != nil {
+			return ctx, err
+		}
 	}
 	ctx.Channel = channel
 	ctx.AdditionalParams = make(map[string]interface{})
