@@ -52,13 +52,13 @@ func (r *Router) Context(m *discordgo.MessageCreate) (ctx *Ctx, err error) {
 	}
 	messageContent := TrimPrefixesSpace(m.Content, r.Prefixes...)
 	message := strings.Split(messageContent, " ")
-	command := message[0]
+	command := TrimPrefixesSpace(strings.ToLower(message[0]), r.Prefixes...)
 	args := []string{}
 	if len(message) > 1 {
 		args = message[1:]
 	}
 
-	raw := TrimPrefixesSpace(messageContent, command)
+	raw := strings.Join(args, " ")
 
 	ctx = &Ctx{Command: command, Args: args, Message: m, Author: m.Author, RawArgs: raw, Router: r, Session: r.Session}
 
