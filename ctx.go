@@ -77,3 +77,17 @@ func (r *Router) Context(m *discordgo.MessageCreate) (ctx *Ctx, err error) {
 
 	return ctx, nil
 }
+
+func (ctx *Ctx) botHasSendPerms(embeds, files bool) bool {
+	if ctx.Message.GuildID == "" {
+		return true
+	}
+	if embeds && files {
+		return ctx.Router.PermCache.HasPermissions(ctx.BotUser.ID, ctx.Channel.ID, discordgo.PermissionSendMessages+discordgo.PermissionEmbedLinks+discordgo.PermissionAttachFiles)
+	} else if embeds {
+		return ctx.Router.PermCache.HasPermissions(ctx.BotUser.ID, ctx.Channel.ID, discordgo.PermissionSendMessages+discordgo.PermissionEmbedLinks)
+	} else if files {
+		return ctx.Router.PermCache.HasPermissions(ctx.BotUser.ID, ctx.Channel.ID, discordgo.PermissionSendMessages+discordgo.PermissionAttachFiles)
+	}
+	return ctx.Router.PermCache.HasPermissions(ctx.BotUser.ID, ctx.Channel.ID, discordgo.PermissionSendMessages)
+}

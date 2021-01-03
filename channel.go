@@ -8,8 +8,12 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// ErrorUnknownType is returned when an unknown type argument is passed to Send
-var ErrorUnknownType = errors.New("unknown type for ctx.Send")
+var (
+	// ErrorUnknownType is returned when an unknown type argument is passed to Send
+	ErrorUnknownType = errors.New("unknown type for ctx.Send")
+	// ErrBotMissingPerms is returned when the bot is missing permissions required to send a message
+	ErrBotMissingPerms = errors.New("bot is missing permissions")
+)
 
 // SendAddXHandler wraps around Send, adding a handler for :x: that deletes the response
 func (ctx *Ctx) SendAddXHandler(arg interface{}) (message *discordgo.Message, err error) {
@@ -25,12 +29,24 @@ func (ctx *Ctx) SendAddXHandler(arg interface{}) (message *discordgo.Message, er
 
 // Send sends a message to the channel the command was invoked in
 func (ctx *Ctx) Send(arg interface{}) (message *discordgo.Message, err error) {
+	if !ctx.botHasSendPerms(false, false) {
+		return nil, ErrBotMissingPerms
+	}
+
 	switch arg.(type) {
 	case string:
 		message, err = ctx.Session.ChannelMessageSend(ctx.Message.ChannelID, arg.(string))
 	case *discordgo.MessageEmbed:
+		if !ctx.botHasSendPerms(true, false) {
+			return nil, ErrBotMissingPerms
+		}
+
 		message, err = ctx.Session.ChannelMessageSendEmbed(ctx.Message.ChannelID, arg.(*discordgo.MessageEmbed))
 	case *discordgo.MessageSend:
+		if !ctx.botHasSendPerms(true, true) {
+			return nil, ErrBotMissingPerms
+		}
+
 		message, err = ctx.Session.ChannelMessageSendComplex(ctx.Message.ChannelID, arg.(*discordgo.MessageSend))
 	default:
 		err = errors.New("don't know what to do with that type")
@@ -49,11 +65,19 @@ func (ctx *Ctx) SendfAddXHandler(format string, args ...interface{}) (msg *disco
 
 // Sendf sends a fmt.Sprintf-like input string
 func (ctx *Ctx) Sendf(format string, args ...interface{}) (msg *discordgo.Message, err error) {
+	if !ctx.botHasSendPerms(false, false) {
+		return nil, ErrBotMissingPerms
+	}
+
 	return ctx.Session.ChannelMessageSend(ctx.Message.ChannelID, fmt.Sprintf(format, args...))
 }
 
 // Editf edits a message with Sendf-like syntax
 func (ctx *Ctx) Editf(message *discordgo.Message, format string, args ...interface{}) (msg *discordgo.Message, err error) {
+	if !ctx.botHasSendPerms(false, false) {
+		return nil, ErrBotMissingPerms
+	}
+
 	return ctx.Session.ChannelMessageEdit(message.ChannelID, message.ID, fmt.Sprintf(format, args...))
 }
 
@@ -68,6 +92,10 @@ func (ctx *Ctx) EmbedAddXHandler(title, description string, color int) (msg *dis
 
 // Embed sends the input as an embed
 func (ctx *Ctx) Embed(title, description string, color int) (msg *discordgo.Message, err error) {
+	if !ctx.botHasSendPerms(true, false) {
+		return nil, ErrBotMissingPerms
+	}
+
 	if color == 0 {
 		color = 0x21a1a8
 	}
@@ -91,6 +119,10 @@ func (ctx *Ctx) EmbedfAddXHandler(title, format string, args ...interface{}) (ms
 
 // Embedf sends a fmt.Sprintf-like input string, in an embed
 func (ctx *Ctx) Embedf(title, format string, args ...interface{}) (msg *discordgo.Message, err error) {
+	if !ctx.botHasSendPerms(true, false) {
+		return nil, ErrBotMissingPerms
+	}
+
 	embed := &discordgo.MessageEmbed{
 		Title:       title,
 		Description: fmt.Sprintf(format, args...),
@@ -102,6 +134,10 @@ func (ctx *Ctx) Embedf(title, format string, args ...interface{}) (msg *discordg
 
 // EditEmbedf edits an embed with Embedf syntax
 func (ctx *Ctx) EditEmbedf(message *discordgo.Message, title, format string, args ...interface{}) (msg *discordgo.Message, err error) {
+	if !ctx.botHasSendPerms(true, false) {
+		return nil, ErrBotMissingPerms
+	}
+
 	embed := &discordgo.MessageEmbed{
 		Title:       title,
 		Description: fmt.Sprintf(format, args...),
@@ -132,6 +168,12 @@ func (ctx *Ctx) Edit(message *discordgo.Message, arg interface{}) (msg *discordg
 
 // React reacts to the triggering message
 func (ctx *Ctx) React(emoji string) (err error) {
+	if ctx.Message.GuildID != "" {
+		if !ctx.Router.PermCache.HasPermissions(ctx.BotUser.ID, ctx.Channel.ID, discordgo.PermissionAddReactions) {
+			return ErrBotMissingPerms
+		}
+	}
+
 	return ctx.Session.MessageReactionAdd(ctx.Message.ChannelID, ctx.Message.ID, emoji)
 }
 

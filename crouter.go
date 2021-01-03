@@ -12,7 +12,7 @@ import (
 
 // Version returns the current crouter version
 func Version() string {
-	return "0.5.1"
+	return "0.7.0"
 }
 
 // RequiredIntents are the intents required for the router
@@ -37,6 +37,8 @@ type Router struct {
 	blacklist func(*Ctx) bool
 
 	prefixUsersSet bool
+
+	PermCache *PermCache
 }
 
 // Command is a single command
@@ -87,6 +89,7 @@ func NewRouter(s *discordgo.Session, owners, prefixes []string) *Router {
 		Cooldowns: cache,
 		Handlers:  h,
 		Prefixes:  prefixes,
+		PermCache: NewPermCache(s),
 	}
 
 	router.AddCommand(&Command{
