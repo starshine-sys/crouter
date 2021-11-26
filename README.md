@@ -1,3 +1,5 @@
+# This is outdated! You shouldn't use it--if you desperately wanna use our spaghetti, try [bcr](https://github.com/starshine-sys/bcr)
+
 # crouter
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/Starshine113/crouter.svg)](https://pkg.go.dev/github.com/Starshine113/crouter)
